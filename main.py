@@ -1,9 +1,10 @@
 import os
 from typing import List, Optional
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Header
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from bson import ObjectId
+import requests
 
 from database import db, create_document, get_documents
 from schemas import Project, Testimonial, Client, Message
@@ -114,7 +115,114 @@ def list_clients(limit: int = 100):
 def submit_message(m: Message):
     try:
         new_id = create_document("message", m)
+        # Optional notification
+        try:
+            webhook = os.getenv("EMAIL_WEBHOOK_URL")
+            if webhook:
+                payload = {
+                    "type": "new_message",
+                    "name": m.name,
+                    "email": m.email,
+                    "company": m.company,
+                    "message": m.message,
+                    "message_id": new_id,
+                }
+                requests.post(webhook, json=payload, timeout=5)
+        except Exception:
+            # Best-effort: ignore notification errors
+            pass
         return {"id": new_id, "status": "received"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+# ---------- Seed Demo Content (Protected) ----------
+@app.post("/api/seed")
+def seed_demo_content(x_admin_token: Optional[str] = Header(default=None, alias="X-Admin-Token")):
+    admin_token = os.getenv("ADMIN_TOKEN")
+    if not admin_token or x_admin_token != admin_token:
+        raise HTTPException(status_code=401, detail="Unauthorized")
+
+    try:
+        # Insert sample projects
+        sample_projects = [
+            {
+                "title": "NOVA — Modular Branding Kit",
+                "category": "Branding",
+                "description": "A restrained visual system with flexible type scales and a mono grid.",
+                "image_url": "https://images.unsplash.com/photo-1512295767273-ac109ac3acfa?q=80&w=1600&auto=format&fit=crop",
+                "tags": ["Identity", "Guidelines"],
+                "featured": True,
+                "order": 1
+            },
+            {
+                "title": "Eclipse OS — Motion Language",
+                "category": "Motion",
+                "description": "A responsive motion spec for product UI and launch content.",
+                "image_url": "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?q=80&w=1600&auto=format&fit=crop",
+                "tags": ["UI", "Spec"],
+                "featured": True,
+                "order": 2
+            },
+            {
+                "title": "Orbit — 3D Brand Toolkit",
+                "category": "3D",
+                "description": "Procedural materials and light rigs for consistent content at scale.",
+                "image_url": "https://images.unsplash.com/photo-1495567720989-cebdbdd97913?q=80&w=1600&auto=format&fit=crop",
+                "tags": ["Lookdev", "Toolkit"],
+                "featured": False,
+                "order": 3
+            },
+            {
+                "title": "Pico — Character Animation Pack",
+                "category": "Animation",
+                "description": "A library of expressive micro-animations for onboarding and support.",
+                "image_url": "https://images.unsplash.com/photo-1545239351-1141bd82e8a6?q=80&w=1600&auto=format&fit=crop",
+                "tags": ["Rigging", "2D"],
+                "featured": False,
+                "order": 4
+            }
+        ]
+        for p in sample_projects:
+            try:
+                create_document("project", Project(**p))
+            except Exception:
+                pass
+
+        # Insert sample testimonials
+        sample_testimonials = [
+            {
+                "name": "Alex Kim",
+                "role": "Head of Brand",
+                "company": "Vector",
+                "quote": "They distilled our messy vision into a simple system we use every day."
+            },
+            {
+                "name": "Riya Patel",
+                "role": "Product Design Lead",
+                "company": "Sona",
+                "quote": "Crisp motion work that elevated the whole product."
+            }
+        ]
+        for t in sample_testimonials:
+            try:
+                create_document("testimonial", Testimonial(**t))
+            except Exception:
+                pass
+
+        # Insert sample clients
+        sample_clients = [
+            {"name": "Linear", "website": "https://linear.app", "logo_url": "https://avatars.githubusercontent.com/u/56582216?s=200&v=4"},
+            {"name": "Vercel", "website": "https://vercel.com", "logo_url": "https://assets.vercel.com/image/upload/q_auto/front/favicon/vercel/57x57.png"},
+            {"name": "Raycast", "website": "https://raycast.com", "logo_url": "https://avatars.githubusercontent.com/u/57921518?s=200&v=4"}
+        ]
+        for c in sample_clients:
+            try:
+                create_document("client", Client(**c))
+            except Exception:
+                pass
+
+        return {"status": "ok"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
