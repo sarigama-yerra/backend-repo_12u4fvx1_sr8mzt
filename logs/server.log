@@ -1,19 +1,19 @@
 INFO:     Will watch for changes in these directories: ['/home/workspace']
 INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
-INFO:     Started reloader process [336] using StatReload
-INFO:     Started server process [338]
+INFO:     Started reloader process [442] using StatReload
+INFO:     Started server process [444]
 INFO:     Waiting for application startup.
 INFO:     Application startup complete.
-INFO:     172.20.0.1:43212 - "HEAD / HTTP/1.1" 405 Method Not Allowed
-INFO:     172.20.0.1:43232 - "GET /api/projects HTTP/1.1" 200 OK
-INFO:     172.20.0.1:43218 - "GET /api/clients HTTP/1.1" 200 OK
-INFO:     172.20.0.1:43232 - "GET /api/projects HTTP/1.1" 200 OK
-INFO:     172.20.0.1:43218 - "GET /api/clients HTTP/1.1" 200 OK
-INFO:     172.20.0.1:43238 - "GET /api/testimonials HTTP/1.1" 200 OK
-INFO:     172.20.0.1:43238 - "GET /api/testimonials HTTP/1.1" 200 OK
-INFO:     172.20.0.1:40330 - "GET /api/clients HTTP/1.1" 200 OK
-INFO:     172.20.0.1:40342 - "GET /api/testimonials HTTP/1.1" 200 OK
-INFO:     172.20.0.1:40334 - "GET /api/projects HTTP/1.1" 200 OK
-INFO:     172.20.0.1:40330 - "GET /api/clients HTTP/1.1" 200 OK
-INFO:     172.20.0.1:40334 - "GET /api/projects HTTP/1.1" 200 OK
-INFO:     172.20.0.1:40342 - "GET /api/testimonials HTTP/1.1" 200 OK
+INFO:     172.20.0.1:43220 - "HEAD / HTTP/1.1" 405 Method Not Allowed
+INFO:     172.20.0.1:43230 - "GET /api/projects HTTP/1.1" 200 OK
+INFO:     172.20.0.1:43228 - "GET /api/clients HTTP/1.1" 200 OK
+INFO:     172.20.0.1:43228 - "GET /api/projects HTTP/1.1" 200 OK
+INFO:     172.20.0.1:43230 - "GET /api/clients HTTP/1.1" 200 OK
+INFO:     172.20.0.1:43244 - "GET /api/testimonials HTTP/1.1" 200 OK
+INFO:     172.20.0.1:43230 - "GET /api/testimonials HTTP/1.1" 200 OK
+INFO:     172.20.0.1:36018 - "GET /api/clients HTTP/1.1" 200 OK
+INFO:     172.20.0.1:36024 - "GET /api/projects HTTP/1.1" 200 OK
+INFO:     172.20.0.1:36026 - "GET /api/testimonials HTTP/1.1" 200 OK
+INFO:     172.20.0.1:36018 - "GET /api/clients HTTP/1.1" 200 OK
+INFO:     172.20.0.1:36024 - "GET /api/projects HTTP/1.1" 200 OK
+INFO:     172.20.0.1:36026 - "GET /api/testimonials HTTP/1.1" 200 OK

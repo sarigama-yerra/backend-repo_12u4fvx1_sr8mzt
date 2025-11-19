@@ -31,9 +31,10 @@ def create_document(collection_name: str, data: Union[BaseModel, dict]):
     if db is None:
         raise Exception("Database not available. Check DATABASE_URL and DATABASE_NAME environment variables.")
 
-    # Convert Pydantic model to dict if needed
+    # Convert Pydantic model to JSON-friendly dict if needed
     if isinstance(data, BaseModel):
-        data_dict = data.model_dump()
+        # Use mode="json" to ensure fields like HttpUrl become strings
+        data_dict = data.model_dump(mode="json")
     else:
         data_dict = data.copy()
 
