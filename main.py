@@ -72,6 +72,20 @@ def list_projects(category: Optional[str] = None, featured: Optional[bool] = Non
         raise HTTPException(status_code=500, detail=str(e))
 
 
+@app.get("/api/projects/{project_id}")
+def get_project(project_id: str):
+    from pymongo import ReturnDocument
+    try:
+        doc = db["project"].find_one({"_id": ObjectId(project_id)})
+        if not doc:
+            raise HTTPException(status_code=404, detail="Not found")
+        return serialize_doc(doc)
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=400, detail="Invalid ID")
+
+
 # ---------- Testimonials ----------
 @app.post("/api/testimonials")
 def create_testimonial(t: Testimonial):
@@ -115,7 +129,7 @@ def list_clients(limit: int = 100):
 def submit_message(m: Message):
     try:
         new_id = create_document("message", m)
-        # Optional notification
+        # Optional notification via webhook
         try:
             webhook = os.getenv("EMAIL_WEBHOOK_URL")
             if webhook:
@@ -129,7 +143,26 @@ def submit_message(m: Message):
                 }
                 requests.post(webhook, json=payload, timeout=5)
         except Exception:
-            # Best-effort: ignore notification errors
+            pass
+        # Optional direct email via Resend
+        try:
+            resend_key = os.getenv("RESEND_API_KEY")
+            resend_to = os.getenv("RESEND_TO")
+            resend_from = os.getenv("RESEND_FROM", "Studio <notifications@yourstudio.dev>")
+            if resend_key and resend_to:
+                email_payload = {
+                    "from": resend_from,
+                    "to": [resend_to],
+                    "subject": "New Website Inquiry",
+                    "text": f"Name: {m.name}\nEmail: {m.email}\nCompany: {m.company or '-'}\n\n{m.message}\n\nMessage ID: {new_id}",
+                }
+                requests.post(
+                    "https://api.resend.com/emails",
+                    headers={"Authorization": f"Bearer {resend_key}", "Content-Type": "application/json"},
+                    json=email_payload,
+                    timeout=8,
+                )
+        except Exception:
             pass
         return {"id": new_id, "status": "received"}
     except Exception as e:
